@@ -17,6 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.devshady.navigation.Route
+import com.devshady.ui.details.DetailsScreen
+import com.devshady.ui.feed.FeedScreen
 import android.graphics.Color as JavaColor
 
 
@@ -41,18 +47,24 @@ class MainActivity: ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        Scaffold(containerColor = androidx.compose.ui.graphics.Color.Black) { innerPadding ->
+        Scaffold(containerColor = Color.Black) { innerPadding ->
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
                 color = Color.Black // Setting background to black so white text is visible
             ) {
-                Box(
-                    Modifier.padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Kal Se Aaj Tak", color = Color.White)
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = Route.NewsFeed) {
+                    composable<Route.NewsFeed> {
+                        FeedScreen({
+                            navController.navigate(Route.Details(it))
+                        })
+                    }
+                    composable<Route.Details> {
+                        DetailsScreen(123)
+                    }
                 }
 
             }

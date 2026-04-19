@@ -11,8 +11,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.KalSeAajTak" >
-
+        android:theme="@style/Theme.KalSeAajTak">
+        <activity
+            android:name=".ui.feed.FeedScreen"
+            android:exported="false"
+            android:label="@string/title_activity_feed_screen"
+            android:theme="@style/Theme.KalSeAajTak" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

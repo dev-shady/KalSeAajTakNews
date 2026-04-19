@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">KalSeAajTak</string>
+    <string name="title_activity_feed_screen">FeedScreen</string>
 </resources>
