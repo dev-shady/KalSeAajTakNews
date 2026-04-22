@@ -21,7 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 
 @Composable
-fun FeedScreen(uiState: FeedsUiState, onArticleClick: (Int) -> Unit) {
+fun FeedScreen(uiState: FeedsUiState, onArticleClick: (String) -> Unit) {
 
         when(uiState) {
             is FeedsUiState.Success -> {
@@ -34,19 +34,7 @@ fun FeedScreen(uiState: FeedsUiState, onArticleClick: (Int) -> Unit) {
                         items = uiState.feeds,
                         key = { it.id } // Senior Tip: Always provide a key for performance!
                     ) { article ->
-
-                        Row {
-                            AsyncImage(
-                                model = article.thumbnailUrl,
-                                contentDescription = "pic",
-                                modifier = Modifier.size(100.dp).clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                            Column {
-                                Text(article.title, color = Color.White)
-                                Text(article.description, color = Color.White)
-                            }
-                        }
+                        NewsItemRow(article, onArticleClick)
 
                     }
                 }
