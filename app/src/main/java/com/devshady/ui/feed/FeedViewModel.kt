@@ -1,11 +1,15 @@
 package com.devshady.ui.feed
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.flow
+import androidx.lifecycle.viewModelScope
+import com.devshady.domain.GetFeedsUseCase
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
-class FeedViewModel: ViewModel() {
+class FeedViewModel(getFeedsUseCase: GetFeedsUseCase): ViewModel() {
 
-    data class Feeds(
+    data class FeedsItem(
         val id: String,
         val thumbnailUrl: String,
         val title: String,
@@ -14,12 +18,16 @@ class FeedViewModel: ViewModel() {
 
     sealed class FeedsUiState {
         object Loading: FeedsUiState()
-        data class Success(val feeds: List<Feeds>): FeedsUiState()
+        data class Success(val feeds: List<FeedsItem>): FeedsUiState()
         data class Error(val errorMsg: String): FeedsUiState()
     }
 
-    fun fetchNewsFeed() = flow<FeedsUiState> {
-        emit(FeedsUiState.Loading)
-    }
+    val feedsUiState = getFeedsUseCase().map { list->
+        FeedsUiState.Success(feeds = list.map { it.toFeedsItem() })
 
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        FeedsUiState.Loading
+    )
 }

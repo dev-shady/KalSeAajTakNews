@@ -6,23 +6,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.devshady.navigation.Route
+import com.devshady.ui.ViewModelFactory
 import com.devshady.ui.details.DetailsScreen
 import com.devshady.ui.feed.FeedScreen
+import com.devshady.ui.feed.FeedViewModel
 import android.graphics.Color as JavaColor
 
 
@@ -58,7 +58,13 @@ class MainActivity: ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = Route.NewsFeed) {
                     composable<Route.NewsFeed> {
-                        FeedScreen({
+                        val feedsViewModel = viewModel<FeedViewModel> (factory = ViewModelFactory {
+                            FeedViewModel(AppComponent.getFeedsUseCase)
+                        })
+
+                        val feedsUiState = feedsViewModel.feedsUiState.collectAsStateWithLifecycle()
+
+                        FeedScreen(feedsUiState.value ,{
                             navController.navigate(Route.Details(it))
                         })
                     }
