@@ -62,7 +62,7 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis // UX: Handle long titles gracefully
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -73,7 +73,7 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
                     color = Color.LightGray,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    lineHeight = 18.sp // Better readability
+                    lineHeight = 18.sp
                 )
             }
         }
