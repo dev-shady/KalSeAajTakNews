@@ -55,11 +55,15 @@ class MainActivity: ComponentActivity() {
                 color = Color.Black // Setting background to black so white text is visible
             ) {
                 val navController = rememberNavController()
+                val newsApplication = (application as NewsApplication)
+                val appContainer = newsApplication.appContainer
 
                 NavHost(navController = navController, startDestination = Route.NewsFeed) {
                     composable<Route.NewsFeed> {
                         val feedsViewModel = viewModel<FeedViewModel> (factory = ViewModelFactory {
-                            FeedViewModel(AppComponent.getFeedsUseCase)
+                            FeedViewModel(
+                                appContainer.getFeedsUseCase,
+                                appContainer.refreshFeedsUseCase)
                         })
 
                         val feedsUiState = feedsViewModel.feedsUiState.collectAsStateWithLifecycle()

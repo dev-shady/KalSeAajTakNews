@@ -6,5 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 class NewsApplication: Application() {
-    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    val appContainer: AppComponent by lazy {
+        AppComponent(this)
+    }
+
 }

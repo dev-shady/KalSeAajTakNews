@@ -1,14 +1,25 @@
 package com.devshady.data
 
 import com.devshady.domain.News
+import com.devshady.domain.NewsLocalDataSource
 import com.devshady.domain.NewsPreview
 import com.devshady.domain.NewsRemoteDataSource
 import com.devshady.domain.NewsRepository
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.Flow
 
-class NewsRepositoryImpl(private val remoteDataSource: NewsRemoteDataSource): NewsRepository {
-    override fun fetchFeeds()= flow {
-         emit(remoteDataSource.getFeeds(0))
+class NewsRepositoryImpl(
+    private val remoteDataSource: NewsRemoteDataSource,
+    private val localDataSource: NewsLocalDataSource
+): NewsRepository {
+    override fun fetchFeeds(): Flow<List<NewsPreview>> {
+        return localDataSource.observeNews()
+    }
+
+    override suspend fun refreshNews() {
+        //TODO run whole as a transaction
+        localDataSource.clearAll()
+        val firstPageNews = remoteDataSource.getFeeds(1)
+        localDataSource.saveNews(firstPageNews)
     }
 
     override fun fetchNews(id: Int): News {
