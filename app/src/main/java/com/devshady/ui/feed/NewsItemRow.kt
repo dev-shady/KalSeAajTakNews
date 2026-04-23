@@ -1,17 +1,23 @@
 package com.devshady.ui.feed
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,8 +31,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import com.devshady.domain.NewsPreview
+import com.devshady.ui.animations.shimmerEffect
 
 @Composable
 fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
@@ -41,21 +51,9 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail with custom loading state
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(article.thumbnailUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(110.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop,
-            )
 
+            NewsImage(article.thumbnailUrl)
             Spacer(modifier = Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) { // Use weight to ensure text doesn't push image out
                 Text(
                     text = article.title,
@@ -64,9 +62,7 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Text(
                     text = article.description,
                     style = MaterialTheme.typography.bodySmall,
@@ -76,6 +72,31 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
                     lineHeight = 18.sp
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun NewsImage(url: String) {
+    SubcomposeAsyncImage(
+        model = url,
+        contentDescription = null,
+        modifier = Modifier
+            .size(110.dp)
+            .clip(RoundedCornerShape(8.dp)),
+        contentScale = ContentScale.Crop
+    ) {
+        val state = painter.state
+        if (state is AsyncImagePainter.State.Loading) {
+            // UX: Show shimmer while the image is downloading
+            Box(Modifier.fillMaxSize().shimmerEffect())
+        } else if (state is AsyncImagePainter.State.Error) {
+            // UX: Show a fallback icon if it fails
+            Box(Modifier.fillMaxSize().background(Color.DarkGray), contentAlignment = Alignment.Center) {
+                Icon(Icons.Default.Warning, contentDescription = null, tint = Color.Gray)
+            }
+        } else {
+            SubcomposeAsyncImageContent()
         }
     }
 }
