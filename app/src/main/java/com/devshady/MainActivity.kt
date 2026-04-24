@@ -62,15 +62,20 @@ class MainActivity: ComponentActivity() {
                     composable<Route.NewsFeed> {
                         val feedsViewModel = viewModel<FeedViewModel> (factory = ViewModelFactory {
                             FeedViewModel(
-                                appContainer.getFeedsUseCase,
-                                appContainer.refreshFeedsUseCase)
+                                refreshFeedsUseCase =
+                                appContainer.refreshFeedsUseCase,
+                                loadNextPageUseCase =
+                                appContainer.loadNextPageUseCase,
+                                getFeedsUseCase = appContainer.getFeedsUseCase)
                         })
 
                         val feedsUiState = feedsViewModel.feedsUiState.collectAsStateWithLifecycle()
 
                         FeedScreen(feedsUiState.value ,{
                             navController.navigate(Route.Details(it))
-                        })
+                        }) {page ->
+                            feedsViewModel.loadNextPage(page)
+                        }
                     }
                     composable<Route.Details> {
                         DetailsScreen(123)

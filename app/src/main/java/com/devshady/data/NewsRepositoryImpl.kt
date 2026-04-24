@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 class NewsRepositoryImpl(
     private val remoteDataSource: NewsRemoteDataSource,
     private val localDataSource: NewsLocalDataSource
-): NewsRepository {
+) : NewsRepository {
     override fun fetchFeeds(): Flow<List<NewsPreview>> {
         return localDataSource.observeNews()
     }
@@ -20,6 +20,12 @@ class NewsRepositoryImpl(
         localDataSource.clearAll()
         val firstPageNews = remoteDataSource.getFeeds(1)
         localDataSource.saveNews(firstPageNews)
+    }
+
+    override suspend fun loadNextPage(page: Int): Int {
+        val newsList = remoteDataSource.getFeeds(page)
+        localDataSource.saveNews(newsList)
+        return newsList.size
     }
 
     override fun fetchNews(id: Int): News {

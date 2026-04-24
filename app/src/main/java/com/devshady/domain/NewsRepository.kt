@@ -6,4 +6,5 @@ interface NewsRepository {
     fun fetchFeeds(): Flow<List<NewsPreview>>
     fun fetchNews(id: Int): News
     suspend fun refreshNews()
+    suspend fun loadNextPage(page: Int): Int
 }

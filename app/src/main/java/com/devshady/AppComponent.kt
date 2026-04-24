@@ -9,6 +9,7 @@ import com.devshady.data.retrofit.okhttp.AuthenticationInterceptor
 import com.devshady.data.room.NewsDatabase
 import com.devshady.data.room.RoomLocalDataSource
 import com.devshady.domain.GetFeedsUseCase
+import com.devshady.domain.LoadNextPageUseCase
 import com.devshady.domain.RefreshFeedsUseCase
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -42,4 +43,6 @@ class AppComponent(context: Context) {
     val newsRepository = NewsRepositoryImpl(remoteDataSource, localDataSource)
     val getFeedsUseCase = GetFeedsUseCase(newsRepository)
     val refreshFeedsUseCase = RefreshFeedsUseCase(newsRepository)
+    val loadNextPageUseCase = LoadNextPageUseCase(newsRepository
+    )
 }

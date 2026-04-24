@@ -4,35 +4,63 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.devshady.domain.GetFeedsUseCase
+import com.devshady.domain.LoadNextPageUseCase
 import com.devshady.domain.RefreshFeedsUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class FeedViewModel(
-    private val getFeedsUseCase: GetFeedsUseCase,
-    private val refreshFeedsUseCase: RefreshFeedsUseCase): ViewModel() {
+    private val refreshFeedsUseCase: RefreshFeedsUseCase,
+    private val loadNextPageUseCase: LoadNextPageUseCase,
+    getFeedsUseCase: GetFeedsUseCase
+) : ViewModel() {
 
     init {
         refresh()
     }
 
+    var lastRequestedPage = -1
+    private var isLastPageReached = MutableStateFlow(false)
+
     private fun refresh() {
-       viewModelScope.launch {
-           refreshFeedsUseCase()
-       }
+        viewModelScope.launch {
+            refreshFeedsUseCase()
+        }
     }
 
-    val feedsUiState = getFeedsUseCase().distinctUntilChanged().map { list->
-        FeedsUiState.Success(feeds = list.map { it.toFeedsItem() })
+    val loadNextPage = { nextPage: Int ->
+        if (nextPage > lastRequestedPage) {
+            lastRequestedPage = nextPage
+            viewModelScope.launch {
+                val itemsCount = loadNextPageUseCase(nextPage)
+                if (itemsCount == 0) {
+                    isLastPageReached.value = true
+                }
+            }
+        }
+    }
 
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        FeedsUiState.Loading
-    )
+    val feedsUiState = getFeedsUseCase()
+        .distinctUntilChanged()
+        .combine(isLastPageReached) { feeds, isLastPage ->
+            if (feeds.isEmpty() && !isLastPage) {
+                FeedsUiState.Loading
+            } else {
+                FeedsUiState.Success(
+                    feeds = feeds.map { it.toFeedsItem() },
+                    isLastPageReached = isLastPage
+                )
+            }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            FeedsUiState.Loading
+        )
 
     @Immutable
     data class FeedsItem(
@@ -43,9 +71,15 @@ class FeedViewModel(
     )
 
     sealed class FeedsUiState {
-        object Loading: FeedsUiState()
+        object Loading : FeedsUiState()
+
         @Immutable
-        data class Success(val feeds: List<FeedsItem>): FeedsUiState()
-        data class Error(val errorMsg: String): FeedsUiState()
+        data class Success(
+            val feeds: List<FeedsItem>,
+            val nextPage: Int = feeds.size / 10 + 1,
+            val isLastPageReached: Boolean = false
+        ) : FeedsUiState()
+
+        data class Error(val errorMsg: String) : FeedsUiState()
     }
 }

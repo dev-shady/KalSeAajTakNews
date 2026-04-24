@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NewsDao {
-    @Query("SELECT * FROM news_feed ORDER BY timestamp DESC")
+    @Query("SELECT * FROM news_feed")
     fun getFeed(): Flow<List<NewsFeedEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
