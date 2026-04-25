@@ -26,7 +26,7 @@ import com.devshady.ui.feed.FeedViewModel
 import android.graphics.Color as JavaColor
 
 
-class MainActivity: ComponentActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,20 +60,25 @@ class MainActivity: ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = Route.NewsFeed) {
                     composable<Route.NewsFeed> {
-                        val feedsViewModel = viewModel<FeedViewModel> (factory = ViewModelFactory {
+                        val feedsViewModel = viewModel<FeedViewModel>(factory = ViewModelFactory {
                             FeedViewModel(
                                 refreshFeedsUseCase =
-                                appContainer.refreshFeedsUseCase,
+                                    appContainer.refreshFeedsUseCase,
                                 loadNextPageUseCase =
-                                appContainer.loadNextPageUseCase,
-                                getFeedsUseCase = appContainer.getFeedsUseCase)
+                                    appContainer.loadNextPageUseCase,
+                                getFeedsUseCase = appContainer.getFeedsUseCase
+                            )
                         })
 
                         val feedsUiState = feedsViewModel.feedsUiState.collectAsStateWithLifecycle()
+                        val feedsEvents = feedsViewModel.feedsEventFlow
 
-                        FeedScreen(feedsUiState.value ,{
-                            navController.navigate(Route.Details(it))
-                        }) {page ->
+                        FeedScreen(
+                            uiState = feedsUiState.value,
+                            feedsEvents = feedsEvents,
+                            onArticleClick = {
+                                navController.navigate(Route.Details(it))
+                            }) { page ->
                             feedsViewModel.loadNextPage(page)
                         }
                     }

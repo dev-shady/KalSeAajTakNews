@@ -1,6 +1,7 @@
 package com.devshady.ui.feed
 
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,14 +22,17 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.devshady.ui.feed.FeedViewModel.FeedsUiState
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
 @Composable
 fun FeedScreen(
     uiState: FeedsUiState,
+    feedsEvents: Flow<FeedViewModel.FeedsEvent>,
     onArticleClick: (String) -> Unit,
     loadNextPage: (Int) -> Unit
 ) {
@@ -41,14 +45,25 @@ fun FeedScreen(
         }
     }
 
+    val context = LocalContext.current
 
     LaunchedEffect(shouldLoadMore.value) {
         snapshotFlow { shouldLoadMore.value }
             .distinctUntilChanged() // Only emits when it flips from false -> true
-            .filter { it == true }   // Only proceed if the value is true
+            .filter { it }   // Only proceed if the value is true
             .collect {
                 loadNextPage(lazyListState.layoutInfo.totalItemsCount / 10 + 1)
             }
+    }
+
+    LaunchedEffect(Unit) {
+        feedsEvents.collect { event ->
+            when (event) {
+                FeedViewModel.FeedsEvent.ShowNoMoreDataToast ->
+                    Toast.makeText(context, "No More Data Available", Toast.LENGTH_SHORT)
+                        .show()
+            }
+        }
     }
     when (uiState) {
         is FeedsUiState.Success -> {

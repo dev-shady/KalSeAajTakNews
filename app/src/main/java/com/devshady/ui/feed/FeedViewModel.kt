@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.devshady.domain.GetFeedsUseCase
 import com.devshady.domain.LoadNextPageUseCase
 import com.devshady.domain.RefreshFeedsUseCase
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -39,6 +41,7 @@ class FeedViewModel(
                 val itemsCount = loadNextPageUseCase(nextPage)
                 if (itemsCount == 0) {
                     isLastPageReached.value = true
+                    feedsEvent.send(FeedsEvent.ShowNoMoreDataToast)
                 }
             }
         }
@@ -62,6 +65,9 @@ class FeedViewModel(
             FeedsUiState.Loading
         )
 
+    private val feedsEvent = Channel<FeedsEvent>()
+    val feedsEventFlow = feedsEvent.receiveAsFlow()
+
     @Immutable
     data class FeedsItem(
         val id: String,
@@ -81,5 +87,9 @@ class FeedViewModel(
         ) : FeedsUiState()
 
         data class Error(val errorMsg: String) : FeedsUiState()
+    }
+
+    sealed class FeedsEvent {
+        object ShowNoMoreDataToast : FeedsEvent()
     }
 }
