@@ -26,16 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import coil.request.ImageRequest
-import com.devshady.domain.NewsPreview
 import com.devshady.ui.animations.shimmerEffect
 
 @Composable
@@ -44,7 +39,7 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick(article.id) }, // Ripple feedback for touch
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -57,19 +52,18 @@ fun NewsItemRow(article: FeedViewModel.FeedsItem, onClick: (String) -> Unit) {
             Column(modifier = Modifier.weight(1f)) { // Use weight to ensure text doesn't push image out
                 Text(
                     text = article.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
+                    style = MaterialTheme.typography.titleLarge,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = article.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray,
+                    style = MaterialTheme.typography.bodyLarge,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    lineHeight = 18.sp
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -89,10 +83,19 @@ fun NewsImage(url: String) {
         val state = painter.state
         if (state is AsyncImagePainter.State.Loading) {
             // UX: Show shimmer while the image is downloading
-            Box(Modifier.fillMaxSize().shimmerEffect())
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .shimmerEffect()
+            )
         } else if (state is AsyncImagePainter.State.Error) {
             // UX: Show a fallback icon if it fails
-            Box(Modifier.fillMaxSize().background(Color.DarkGray), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.DarkGray),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(Icons.Default.Warning, contentDescription = null, tint = Color.Gray)
             }
         } else {

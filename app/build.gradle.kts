@@ -19,7 +19,7 @@ android {
     if (localPropertiesFile.exists()) {
         localProperties.load(localPropertiesFile.inputStream())
     }
-    val apiKey = localProperties.getProperty("NEWS_API_KEY")?:"\"\""
+    val apiKey = localProperties.getProperty("NEWS_API_KEY") ?: "\"\""
 
     defaultConfig {
         applicationId = "com.devshady"
@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.google.fonts)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

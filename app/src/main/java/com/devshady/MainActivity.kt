@@ -3,11 +3,11 @@ package com.devshady
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -23,7 +23,7 @@ import com.devshady.ui.ViewModelFactory
 import com.devshady.ui.details.DetailsScreen
 import com.devshady.ui.feed.FeedScreen
 import com.devshady.ui.feed.FeedViewModel
-import android.graphics.Color as JavaColor
+import com.devshady.ui.theme.AppTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -31,17 +31,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Required for statusBarsPadding() to work correctly
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(JavaColor.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(JavaColor.TRANSPARENT)
-        )
+        enableEdgeToEdge()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
         setContent {
-            MainScreen()
+            AppTheme {
+                MainScreen()
+            }
+
         }
     }
 
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                color = Color.Black // Setting background to black so white text is visible
+                color = MaterialTheme.colorScheme.surface // Setting background to black so white text is visible
             ) {
                 val navController = rememberNavController()
                 val newsApplication = (application as NewsApplication)
