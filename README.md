@@ -1,4 +1,4 @@
-News App built using clean architecture, UDF and SOLID principles.
+News App built using jetpack compose, clean architecture, UDF and SOLID principles.
 
 - It shows news feed with infinte scroll and paginated data fetch without using any pagination lib.
 - Uses room db for caching data and driving UI.
